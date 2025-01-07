@@ -265,7 +265,7 @@ if st.button("Upload file to the system"):
 
     # Run the async function
     if __name__ == '__main__':
-        loop = asyncio.ProactorEventLoop()
+        loop = asyncio.SelectorEventLoop()
         asyncio.set_event_loop(loop)
         title = loop.run_until_complete(main())
         print(title)
