@@ -1,0 +1,8 @@
+streamlit
+opencv-python-headless
+Pillow
+img2table
+playwright
+pandas
+openpyxl
+asyncio
