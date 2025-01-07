@@ -1,8 +1,5 @@
-streamlit
-
-Pillow
-img2table
-playwright
 pandas
+streamlit
 openpyxl
+playwright
 asyncio
