@@ -1,152 +1,152 @@
-import streamlit as st
-import cv2
-from PIL import Image as PILImage
-from img2table.ocr import AzureOCR
-from img2table.document import Image
-import os
-# Azure OCR credentials (replace with your actual key and endpoint)
-subscription_key = "GD6ulmqehKFhHTQRGlXrp9KWFnJw1kraJFLMxBIDLjQMYW4OmpRvJQQJ99ALACYeBjFXJ3w3AAAFACOGdPzx"
-endpoint = "https://imagedataextration.cognitiveservices.azure.com/"
+# import streamlit as st
+# import cv2
+# from PIL import Image as PILImage
+# from img2table.ocr import AzureOCR
+# from img2table.document import Image
+# import os
+# # Azure OCR credentials (replace with your actual key and endpoint)
+# subscription_key = "GD6ulmqehKFhHTQRGlXrp9KWFnJw1kraJFLMxBIDLjQMYW4OmpRvJQQJ99ALACYeBjFXJ3w3AAAFACOGdPzx"
+# endpoint = "https://imagedataextration.cognitiveservices.azure.com/"
 
-# Initialize AzureOCR
-azure_ocr = AzureOCR(subscription_key=subscription_key, endpoint=endpoint)
+# # Initialize AzureOCR
+# azure_ocr = AzureOCR(subscription_key=subscription_key, endpoint=endpoint)
 
-# Streamlit app
-st.title("Image to Table Extraction")
+# # Streamlit app
+# st.title("Image to Table Extraction")
 
-st.write("Upload images to extract tables and save them as Excel files.")
+# st.write("Upload images to extract tables and save them as Excel files.")
 
-# Function to process images and extract tables
-def process_image(image_path, output_xlsx):
-    # Load the input image
-    img = Image(src=image_path)
-    cv_img = cv2.imread(image_path)
+# # Function to process images and extract tables
+# def process_image(image_path, output_xlsx):
+#     # Load the input image
+#     img = Image(src=image_path)
+#     cv_img = cv2.imread(image_path)
 
-    # Extract tables using Azure OCR
-    extracted_tables = img.extract_tables(
-        ocr=azure_ocr,
-        implicit_rows=True,
-        borderless_tables=False,
-        min_confidence=30  # Lowering confidence to capture possible tables
-    )
+#     # Extract tables using Azure OCR
+#     extracted_tables = img.extract_tables(
+#         ocr=azure_ocr,
+#         implicit_rows=True,
+#         borderless_tables=False,
+#         min_confidence=30  # Lowering confidence to capture possible tables
+#     )
 
-    if not extracted_tables:
-        st.warning(f"No tables were detected in {image_path}.")
-    else:
-        # Process and display the extracted tables
-        for i, table in enumerate(extracted_tables):
-            st.subheader(f"Extracted Table {i+1}")
-            st.write(table.html_repr(title=f"Table {i+1}"), unsafe_allow_html=True)
+#     if not extracted_tables:
+#         st.warning(f"No tables were detected in {image_path}.")
+#     else:
+#         # Process and display the extracted tables
+#         for i, table in enumerate(extracted_tables):
+#             st.subheader(f"Extracted Table {i+1}")
+#             st.write(table.html_repr(title=f"Table {i+1}"), unsafe_allow_html=True)
 
-            # Highlight table cells on the image
-            for row in table.content.values():
-                for cell in row:
-                    cv2.rectangle(cv_img, (cell.bbox.x1, cell.bbox.y1), (cell.bbox.x2, cell.bbox.y2), (255, 0, 0), 2)
+#             # Highlight table cells on the image
+#             for row in table.content.values():
+#                 for cell in row:
+#                     cv2.rectangle(cv_img, (cell.bbox.x1, cell.bbox.y1), (cell.bbox.x2, cell.bbox.y2), (255, 0, 0), 2)
 
-        # Display the image with highlighted table cells
-        st.image(PILImage.fromarray(cv_img), caption="Detected Tables")
+#         # Display the image with highlighted table cells
+#         st.image(PILImage.fromarray(cv_img), caption="Detected Tables")
 
-    # Save the extracted table(s) to an Excel file
-    img.to_xlsx(output_xlsx,
-                ocr=azure_ocr,
-                implicit_rows=True,
-                borderless_tables=False,
-                min_confidence=50)
+#     # Save the extracted table(s) to an Excel file
+#     img.to_xlsx(output_xlsx,
+#                 ocr=azure_ocr,
+#                 implicit_rows=True,
+#                 borderless_tables=False,
+#                 min_confidence=50)
 
-# Upload first image
-uploaded_file1 = st.file_uploader("Upload the first image", type=["jpg", "png", "jpeg"])
-if uploaded_file1 is not None:
-    with open("uploaded_file1.jpg", "wb") as f:
-        f.write(uploaded_file1.read())
-    output_xlsx_1 = "diesel1.xlsx"
-    process_image("uploaded_file1.jpg", output_xlsx_1)
-    st.success(f"Tables extracted and saved to {output_xlsx_1}")
+# # Upload first image
+# uploaded_file1 = st.file_uploader("Upload the first image", type=["jpg", "png", "jpeg"])
+# if uploaded_file1 is not None:
+#     with open("uploaded_file1.jpg", "wb") as f:
+#         f.write(uploaded_file1.read())
+#     output_xlsx_1 = "diesel1.xlsx"
+#     process_image("uploaded_file1.jpg", output_xlsx_1)
+#     st.success(f"Tables extracted and saved to {output_xlsx_1}")
 
-# Upload second image
-uploaded_file2 = st.file_uploader("Upload the second image", type=["jpg", "png", "jpeg"])
-if uploaded_file2 is not None:
-    with open("uploaded_file2.jpg", "wb") as f:
-        f.write(uploaded_file2.read())
-    output_xlsx_2 = "diesel.xlsx"
-    process_image("uploaded_file2.jpg", output_xlsx_2)
-    st.success(f"Tables extracted and saved to {output_xlsx_2}")
+# # Upload second image
+# uploaded_file2 = st.file_uploader("Upload the second image", type=["jpg", "png", "jpeg"])
+# if uploaded_file2 is not None:
+#     with open("uploaded_file2.jpg", "wb") as f:
+#         f.write(uploaded_file2.read())
+#     output_xlsx_2 = "diesel.xlsx"
+#     process_image("uploaded_file2.jpg", output_xlsx_2)
+#     st.success(f"Tables extracted and saved to {output_xlsx_2}")
 
-# Install required package if needed
-def install_and_restart(package_name, version=None):
-    if version:
-        os.system(f"pip install {package_name}=={version}")
-    else:
-        os.system(f"pip install {package_name}")
+# # Install required package if needed
+# def install_and_restart(package_name, version=None):
+#     if version:
+#         os.system(f"pip install {package_name}=={version}")
+#     else:
+#         os.system(f"pip install {package_name}")
 
-    st.warning("Installation complete. Please restart the Streamlit app.")
+#     st.warning("Installation complete. Please restart the Streamlit app.")
 
-# Check for OpenCV contrib package
-try:
-    import cv2.ximgproc
-except ImportError:
-    st.warning("OpenCV contrib package not found. Installing now...")
-    install_and_restart('opencv-contrib-python-headless', '4.5.5.62')
-# if st.button("Click"):
+# # Check for OpenCV contrib package
+# try:
+#     import cv2.ximgproc
+# except ImportError:
+#     st.warning("OpenCV contrib package not found. Installing now...")
+#     install_and_restart('opencv-contrib-python-headless', '4.5.5.62')
+# # if st.button("Click"):
     
-import pandas as pd
-import streamlit as st
-from io import BytesIO
+# import pandas as pd
+# import streamlit as st
+# from io import BytesIO
 
-# File paths
-file_path = r"C:\Users\DML-LT-36\Desktop\New folder\BRSR-Report_Data-Template custom.xlsx"
+# # File paths
+# file_path = r"C:\Users\DML-LT-36\Desktop\New folder\BRSR-Report_Data-Template custom.xlsx"
 
-# Define sheets to modify
-sheets_to_modify = ["Trans_Complaints", "Stakeholders_Master"]
+# # Define sheets to modify
+# sheets_to_modify = ["Trans_Complaints", "Stakeholders_Master"]
 
-# Load the Excel file
-excel_data = pd.ExcelFile(file_path)
+# # Load the Excel file
+# excel_data = pd.ExcelFile(file_path)
 
-# Load all sheets into a dictionary
-all_sheets = {sheet: excel_data.parse(sheet) for sheet in excel_data.sheet_names}
+# # Load all sheets into a dictionary
+# all_sheets = {sheet: excel_data.parse(sheet) for sheet in excel_data.sheet_names}
 
-# Modify each sheet in the list
-for sheet_to_modify in sheets_to_modify:
-    # Load the specific sheet into a DataFrame
-    if sheet_to_modify in excel_data.sheet_names:
-        sheet_data = all_sheets[sheet_to_modify]
-    else:
-        raise ValueError(f"Sheet '{sheet_to_modify}' not found in the Excel file.")
+# # Modify each sheet in the list
+# for sheet_to_modify in sheets_to_modify:
+#     # Load the specific sheet into a DataFrame
+#     if sheet_to_modify in excel_data.sheet_names:
+#         sheet_data = all_sheets[sheet_to_modify]
+#     else:
+#         raise ValueError(f"Sheet '{sheet_to_modify}' not found in the Excel file.")
 
-    # Load the DataFrame to append (use different file paths for different sheets)
-    if sheet_to_modify == "Trans_Complaints":
-        df_to_append = pd.read_excel(r'C:\Users\DML-LT-36\Desktop\New folder\diesel1.xlsx')
-        df_to_append = df_to_append.iloc[:, 2:].reset_index(drop=True)
-        df_to_append.columns = df_to_append.iloc[0]
-        df_to_append = df_to_append.drop([0, 1]).reset_index(drop=True)
-        df_to_append = df_to_append.apply(pd.to_numeric, errors='coerce')
-        df_to_append = df_to_append.dropna(thresh=len(df_to_append) - 2, axis=1)
-    elif sheet_to_modify == "Stakeholders_Master":
-        df_to_append = pd.read_excel(r'C:\Users\DML-LT-36\Desktop\New folder\diesel.xlsx')
-        df_to_append = df_to_append.iloc[:, 3:].reset_index(drop=True)
-        df_to_append = df_to_append.apply(pd.to_numeric, errors='coerce')
-        df_to_append = df_to_append.dropna(thresh=len(df_to_append) - 2, axis=1)
+#     # Load the DataFrame to append (use different file paths for different sheets)
+#     if sheet_to_modify == "Trans_Complaints":
+#         df_to_append = pd.read_excel(r'C:\Users\DML-LT-36\Desktop\New folder\diesel1.xlsx')
+#         df_to_append = df_to_append.iloc[:, 2:].reset_index(drop=True)
+#         df_to_append.columns = df_to_append.iloc[0]
+#         df_to_append = df_to_append.drop([0, 1]).reset_index(drop=True)
+#         df_to_append = df_to_append.apply(pd.to_numeric, errors='coerce')
+#         df_to_append = df_to_append.dropna(thresh=len(df_to_append) - 2, axis=1)
+#     elif sheet_to_modify == "Stakeholders_Master":
+#         df_to_append = pd.read_excel(r'C:\Users\DML-LT-36\Desktop\New folder\diesel.xlsx')
+#         df_to_append = df_to_append.iloc[:, 3:].reset_index(drop=True)
+#         df_to_append = df_to_append.apply(pd.to_numeric, errors='coerce')
+#         df_to_append = df_to_append.dropna(thresh=len(df_to_append) - 2, axis=1)
 
-    # Create a null row with the same columns
-    null_row = pd.DataFrame({col: [None] for col in df_to_append.columns})
+#     # Create a null row with the same columns
+#     null_row = pd.DataFrame({col: [None] for col in df_to_append.columns})
 
-    # Concatenate the null row at the top
-    df_to_append = pd.concat([null_row, df_to_append], ignore_index=True)
+#     # Concatenate the null row at the top
+#     df_to_append = pd.concat([null_row, df_to_append], ignore_index=True)
 
-    # Append columns from the other DataFrame
-    modified_data = pd.concat([sheet_data, df_to_append], axis=1)
+#     # Append columns from the other DataFrame
+#     modified_data = pd.concat([sheet_data, df_to_append], axis=1)
 
-    # Update the sheet in the dictionary with the modified data
-    all_sheets[sheet_to_modify] = modified_data
+#     # Update the sheet in the dictionary with the modified data
+#     all_sheets[sheet_to_modify] = modified_data
     
-# Save the processed Excel file to memory
-output = BytesIO()
-with pd.ExcelWriter(output, engine="openpyxl") as writer:
-    for sheet_name, data in all_sheets.items():
-        data.to_excel(writer, sheet_name=sheet_name, index=False)
-output.seek(0)
+# # Save the processed Excel file to memory
+# output = BytesIO()
+# with pd.ExcelWriter(output, engine="openpyxl") as writer:
+#     for sheet_name, data in all_sheets.items():
+#         data.to_excel(writer, sheet_name=sheet_name, index=False)
+# output.seek(0)
 
-# Streamlit app to download the file
-st.title("Upload File to system")
+# # Streamlit app to download the file
+# st.title("Upload File to system")
 
 # # Download button
 # st.download_button(
