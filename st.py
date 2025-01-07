@@ -1,63 +1,63 @@
     
-import pandas as pd
-import streamlit as st
-from io import BytesIO
+# import pandas as pd
+# import streamlit as st
+# from io import BytesIO
 
-# File paths
-file_path = r"C:\Users\DML-LT-36\Desktop\New folder\BRSR-Report_Data-Template custom.xlsx"
+# # File paths
+# file_path = r"C:\Users\DML-LT-36\Desktop\New folder\BRSR-Report_Data-Template custom.xlsx"
 
-# Define sheets to modify
-sheets_to_modify = ["Trans_Complaints", "Stakeholders_Master"]
+# # Define sheets to modify
+# sheets_to_modify = ["Trans_Complaints", "Stakeholders_Master"]
 
-# Load the Excel file
-excel_data = pd.ExcelFile(file_path)
+# # Load the Excel file
+# excel_data = pd.ExcelFile(file_path)
 
-# Load all sheets into a dictionary
-all_sheets = {sheet: excel_data.parse(sheet) for sheet in excel_data.sheet_names}
+# # Load all sheets into a dictionary
+# all_sheets = {sheet: excel_data.parse(sheet) for sheet in excel_data.sheet_names}
 
-# Modify each sheet in the list
-for sheet_to_modify in sheets_to_modify:
-    # Load the specific sheet into a DataFrame
-    if sheet_to_modify in excel_data.sheet_names:
-        sheet_data = all_sheets[sheet_to_modify]
-    else:
-        raise ValueError(f"Sheet '{sheet_to_modify}' not found in the Excel file.")
+# # Modify each sheet in the list
+# for sheet_to_modify in sheets_to_modify:
+#     # Load the specific sheet into a DataFrame
+#     if sheet_to_modify in excel_data.sheet_names:
+#         sheet_data = all_sheets[sheet_to_modify]
+#     else:
+#         raise ValueError(f"Sheet '{sheet_to_modify}' not found in the Excel file.")
 
-    # Load the DataFrame to append (use different file paths for different sheets)
-    if sheet_to_modify == "Trans_Complaints":
-        df_to_append = pd.read_excel(r'C:\Users\DML-LT-36\Desktop\New folder\diesel1.xlsx')
-        df_to_append = df_to_append.iloc[:, 2:].reset_index(drop=True)
-        df_to_append.columns = df_to_append.iloc[0]
-        df_to_append = df_to_append.drop([0, 1]).reset_index(drop=True)
-        df_to_append = df_to_append.apply(pd.to_numeric, errors='coerce')
-        df_to_append = df_to_append.dropna(thresh=len(df_to_append) - 2, axis=1)
-    elif sheet_to_modify == "Stakeholders_Master":
-        df_to_append = pd.read_excel(r'C:\Users\DML-LT-36\Desktop\New folder\diesel.xlsx')
-        df_to_append = df_to_append.iloc[:, 3:].reset_index(drop=True)
-        df_to_append = df_to_append.apply(pd.to_numeric, errors='coerce')
-        df_to_append = df_to_append.dropna(thresh=len(df_to_append) - 2, axis=1)
+#     # Load the DataFrame to append (use different file paths for different sheets)
+#     if sheet_to_modify == "Trans_Complaints":
+#         df_to_append = pd.read_excel(r'C:\Users\DML-LT-36\Desktop\New folder\diesel1.xlsx')
+#         df_to_append = df_to_append.iloc[:, 2:].reset_index(drop=True)
+#         df_to_append.columns = df_to_append.iloc[0]
+#         df_to_append = df_to_append.drop([0, 1]).reset_index(drop=True)
+#         df_to_append = df_to_append.apply(pd.to_numeric, errors='coerce')
+#         df_to_append = df_to_append.dropna(thresh=len(df_to_append) - 2, axis=1)
+#     elif sheet_to_modify == "Stakeholders_Master":
+#         df_to_append = pd.read_excel(r'C:\Users\DML-LT-36\Desktop\New folder\diesel.xlsx')
+#         df_to_append = df_to_append.iloc[:, 3:].reset_index(drop=True)
+#         df_to_append = df_to_append.apply(pd.to_numeric, errors='coerce')
+#         df_to_append = df_to_append.dropna(thresh=len(df_to_append) - 2, axis=1)
 
-    # Create a null row with the same columns
-    null_row = pd.DataFrame({col: [None] for col in df_to_append.columns})
+#     # Create a null row with the same columns
+#     null_row = pd.DataFrame({col: [None] for col in df_to_append.columns})
 
-    # Concatenate the null row at the top
-    df_to_append = pd.concat([null_row, df_to_append], ignore_index=True)
+#     # Concatenate the null row at the top
+#     df_to_append = pd.concat([null_row, df_to_append], ignore_index=True)
 
-    # Append columns from the other DataFrame
-    modified_data = pd.concat([sheet_data, df_to_append], axis=1)
+#     # Append columns from the other DataFrame
+#     modified_data = pd.concat([sheet_data, df_to_append], axis=1)
 
-    # Update the sheet in the dictionary with the modified data
-    all_sheets[sheet_to_modify] = modified_data
+#     # Update the sheet in the dictionary with the modified data
+#     all_sheets[sheet_to_modify] = modified_data
     
-# Save the processed Excel file to memory
-output = BytesIO()
-with pd.ExcelWriter(output, engine="openpyxl") as writer:
-    for sheet_name, data in all_sheets.items():
-        data.to_excel(writer, sheet_name=sheet_name, index=False)
-output.seek(0)
+# # Save the processed Excel file to memory
+# output = BytesIO()
+# with pd.ExcelWriter(output, engine="openpyxl") as writer:
+#     for sheet_name, data in all_sheets.items():
+#         data.to_excel(writer, sheet_name=sheet_name, index=False)
+# output.seek(0)
 
-# Streamlit app to download the file
-st.title("Upload File to system")
+# # Streamlit app to download the file
+# st.title("Upload File to system")
 
 # # Download button
 # st.download_button(
@@ -170,7 +170,7 @@ if st.button("Upload file to the system"):
             await page.select_option('select#fileMonth', value="3")  # Select March
             await page.wait_for_selector('select#fileYear', timeout=30000)
             await page.select_option('select#fileYear', value="2023")
-            file_path = r"C:\Users\DML-LT-36\Desktop\New folder\BRSR-Report_Data-Template custom 2 (4).xlsx"
+            file_path = r"BRSR-Report_Data-Template custom 2 (4).xlsx"
             file_input_selector = 'input#file[accept=".xlsx, .xls"]'
             await page.wait_for_selector(file_input_selector, timeout=30000)
             file_input = await page.query_selector(file_input_selector)
