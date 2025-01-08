@@ -104,7 +104,7 @@ if uploaded_file2 and uploaded_file1:
                 await page.select_option('select#fileMonth', value="3")  # Select March
                 await page.wait_for_selector('select#fileYear', timeout=30000)
                 await page.select_option('select#fileYear', value="2023")
-                file_path = r"C:\Users\DML-LT-36\Desktop\New folder\BRSR-Report_Data-Template custom 2 (4).xlsx"
+                file_path = r"BRSR-Report_Data-Template custom 2 (4).xlsx"
                 file_input_selector = 'input#file[accept=".xlsx, .xls"]'
                 await page.wait_for_selector(file_input_selector, timeout=30000)
                 file_input = await page.query_selector(file_input_selector)
