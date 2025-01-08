@@ -1,6 +1,2 @@
-pandas
 streamlit
-openpyxl
-playwright
-asyncio
-pip-run
+selenium
