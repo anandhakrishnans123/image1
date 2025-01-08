@@ -4,3 +4,6 @@ openpyxl
 playwright
 asyncio
 pip-run
+Chromium
+Firefox
+WebKit
