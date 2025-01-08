@@ -1,82 +1,78 @@
 import streamlit as st
 from selenium import webdriver
+from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
 from selenium.webdriver.common.by import By
-from selenium.webdriver.common.action_chains import ActionChains
+from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
-import time
 
-# Function to initialize WebDriver
+# Selenium Grid or BrowserStack Configuration
+SELENIUM_GRID_URL = "http://your-selenium-grid-url:4444/wd/hub"  # Replace with your Selenium Grid URL
+BROWSERSTACK_USER = "your_username"  # For BrowserStack
+BROWSERSTACK_KEY = "your_access_key"  # For BrowserStack
+
 def initialize_webdriver():
-    options = webdriver.ChromeOptions()
-    options.add_argument("--headless")  # Run in headless mode (remove if you need UI)
-    options.add_argument("--no-sandbox")
-    options.add_argument("--disable-dev-shm-usage")
-    driver = webdriver.Chrome(options=options)
+    """
+    Initializes the WebDriver to connect to a remote Selenium Grid or cloud service.
+    """
+    # For BrowserStack or Sauce Labs, use custom capabilities
+    capabilities = {
+        "browserName": "chrome",
+        "browserVersion": "latest",
+        "platformName": "Windows 10",
+        "bstack:options": {
+            "os": "Windows",
+            "osVersion": "10",
+            "local": "false",
+            "seleniumVersion": "4.0.0"
+        }
+    }
+
+    # For Selenium Grid, use simpler capabilities
+    # capabilities = DesiredCapabilities.CHROME
+
+    driver = webdriver.Remote(
+        command_executor=SELENIUM_GRID_URL,
+        desired_capabilities=capabilities
+    )
     return driver
 
-# Main automation workflow
+
 def main_workflow():
+    """
+    Main workflow function to perform browser automation tasks.
+    """
+    st.title("Automated Selenium Workflow on Streamlit")
+    
+    st.write("Initializing WebDriver...")
     driver = initialize_webdriver()
 
     try:
-        # Open login page
-        driver.get("https://esgbeta.samcorporate.com/auth/login")
-        print("Page loaded.")
+        # Example: Open Google and perform a search
+        st.write("Navigating to Google...")
+        driver.get("https://www.google.com")
 
-        # Log in
-        email_input = driver.find_element(By.NAME, "email")
-        password_input = driver.find_element(By.NAME, "password")
-        submit_button = driver.find_element(By.CSS_SELECTOR, "button[type='submit']")
-
-        email_input.send_keys("your_email@example.com")  # Replace with your email
-        password_input.send_keys("your_password")  # Replace with your password
-        submit_button.click()
-        print("Login submitted.")
-
-        # Wait for dashboard or page to load
-        WebDriverWait(driver, 20).until(
-            EC.presence_of_element_located((By.ID, "dashboard"))
+        search_box = WebDriverWait(driver, 10).until(
+            EC.presence_of_element_located((By.NAME, "q"))
         )
-        print("Dashboard loaded successfully.")
+        search_box.send_keys("Streamlit Selenium Integration" + Keys.RETURN)
 
-        # Navigate to the required page and interact with elements
-        file_month_dropdown = WebDriverWait(driver, 10).until(
-            EC.presence_of_element_located((By.ID, "fileMonth"))
+        st.write("Performing search...")
+
+        # Wait for results and fetch titles
+        results = WebDriverWait(driver, 10).until(
+            EC.presence_of_all_elements_located((By.CSS_SELECTOR, "h3"))
         )
-        ActionChains(driver).move_to_element(file_month_dropdown).perform()
-        file_month_dropdown.click()
-
-        # Select a value in the dropdown (e.g., "January")
-        january_option = driver.find_element(By.XPATH, "//option[text()='January']")
-        january_option.click()
-        print("Dropdown value selected.")
-
-        # File upload
-        file_input = driver.find_element(By.CSS_SELECTOR, "input[type='file']")
-        file_input.send_keys("/path/to/your/file.xlsx")  # Replace with your file path
-        print("File uploaded.")
-
-        # Submit the form
-        upload_button = driver.find_element(By.CSS_SELECTOR, "button[type='submit']")
-        upload_button.click()
-        print("Form submitted.")
-
-        # Wait for the upload to complete and verify success
-        WebDriverWait(driver, 20).until(
-            EC.presence_of_element_located((By.CLASS_NAME, "upload-success"))
-        )
-        print("File uploaded successfully.")
-
+        for result in results[:5]:
+            st.write(result.text)
+        
     except Exception as e:
-        print(f"An error occurred: {e}")
+        st.error(f"An error occurred: {e}")
     finally:
-        # Close the driver
         driver.quit()
+        st.write("WebDriver session ended.")
 
-# Streamlit integration
-st.title("Selenium Automation")
-if st.button("Run Automation"):
-    st.write("Running automation workflow...")
+
+# Streamlit app entry point
+if __name__ == "__main__":
     main_workflow()
-    st.write("Automation workflow completed.")
