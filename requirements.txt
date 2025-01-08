@@ -1,2 +1,6 @@
+andas
 streamlit
-selenium
+openpyxl
+playwright
+asyncio
+pip-run
